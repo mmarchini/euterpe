@@ -1,21 +1,21 @@
 """ Melody extractor
 """
 
-from itertools import groupby
-
 import vamp
 import librosa
 from scipy import stats
 from mingus.containers import Note
 
 from euterpe import chordino
+from euterpe.utils import median
 
 
 class Extractor(object):
 
     _plugins = {
         'melody': 'mtg-melodia:melodia',
-        'tempo': 'vamp-aubio:aubiotempo',
+        # 'tempo': 'vamp-aubio:aubiotempo',
+        'tempo': 'qm-vamp-plugins:qm-tempotracker',
         'key': 'qm-vamp-plugins:qm-keydetector',
         'tuning': 'nnls-chroma:tuning',
         'harmony': 'nnls-chroma:chordino'
@@ -71,8 +71,12 @@ class Extractor(object):
             'tuning': float(tuning)
         }).get('list')
 
-        d = sorted([c['label'] for c in collect])
-        e = [(f[0], len(list(f[1]))) for f in groupby(d)]
-        tuning = reduce(lambda a, b: a[1] > b[1] and a or b, e, ('', 0))[0]
+        tuning = median([c['label'] for c in collect])
 
         return tuning
+
+    def tempo(self, settings={}):
+        collect = self._collect('tempo', settings).get('list')
+        tempo = median([c.get('label') for c in collect])
+
+        return tempo

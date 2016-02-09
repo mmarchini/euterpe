@@ -56,7 +56,6 @@ def markov_chainer(chords, chain_size=4):
         next_notes = markov_chain.get(chords[i], {})
         next_notes[chords[i+1]] = next_notes.get(chords[i+1], 0) + 1
         markov_chain[chords[i]] = next_notes
-    from pprint import pprint; pprint(markov_chain)
 
     top_note = None
     top_note_count = 0
